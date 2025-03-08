@@ -1,11 +1,12 @@
 const documentTitle = document.title;
 
-const $text = document.querySelector('#text');
-const $copy = document.querySelector('#copy');
+const $text = document.getElementById('text');
+const $copy = document.getElementById('copy');
+const hashVal = () => location.hash.slice(1);
 const textVal = () => $text.value;
 const textCopy = () => navigator.clipboard.writeText(textVal()) && $text.select();
 
-function titleSet () {
+function titleUpdate () {
 	if (textVal().length) {
 		document.title = textVal();
 	} else {
@@ -19,6 +20,14 @@ function titleSet () {
 	}
 }
 
+if (location.hash.length > 1) {
+	$text.value = hashVal();
+	titleUpdate();
+	textCopy();
+}
+
+$copy.addEventListener('click', textCopy);
+
 $text.addEventListener('input', function () {
 	if (!textVal().length) {
 		location.replace('/');
@@ -27,11 +36,11 @@ $text.addEventListener('input', function () {
 	}
 });
 
-if (location.hash.length > 1) {
-	$text.value = location.hash.slice(1);
-	titleSet();
-	textCopy();
-}
+window.addEventListener('hashchange', () => {
+	titleUpdate();
 
-$copy.addEventListener('click', textCopy);
-window.addEventListener('hashchange', titleSet);
+	if (hashVal() !== textVal()) {
+		$text.value = hashVal();
+		titleUpdate();
+	}
+});
